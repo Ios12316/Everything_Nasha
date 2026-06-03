@@ -331,12 +331,12 @@ export default function AdminDashboard() {
                                                 <div className="flex flex-wrap gap-1">
                                                     {booking.services && booking.services.length > 0 ? (
                                                         booking.services.map((s, idx) => (
-                                                            <span key={idx} className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-250 px-2 py-0.5 rounded text-xs font-medium">
+                                                            <span key={idx} className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded text-xs font-medium">
                                                                 {s}
                                                             </span>
                                                         ))
                                                     ) : (
-                                                        <span className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-250 px-2 py-0.5 rounded text-xs font-medium">
+                                                        <span className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded text-xs font-medium">
                                                             {booking.service || "N/A"}
                                                         </span>
                                                     )}
