@@ -1,9 +1,35 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer.jsx";
 import useModalStore from "../services/modalStore.js";
+import api from "../services/axios.js";
 
 export default function Contact() {
   const { showAlert } = useModalStore();
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    message: ""
+  });
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      const res = await api.post("/messages", formData);
+      if (res.data?.success) {
+        showAlert("Success", "Your message has been sent successfully!");
+        setFormData({ fullName: "", email: "", message: "" });
+      }
+    } catch (err) {
+      console.error(err);
+      showAlert("Error", "Failed to send message. Please try again later.");
+    } finally {
+      setSending(false);
+    }
+  };
+
   const contactLinks = [
     {
       name: "Shop Address",
@@ -149,18 +175,22 @@ export default function Contact() {
               Fill out the form below and our customer care team will get back to you shortly.
             </p>
 
-            <form onSubmit={(e) => { e.preventDefault(); showAlert('Success', 'Message sent successfully!'); e.target.reset(); }} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input 
                   type="text" 
                   placeholder="Your Name" 
-                  className="w-full border border-gray-200 dark:border-slate-700 p-3.5 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all" 
+                  value={formData.fullName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                  className="w-full border border-gray-200 dark:border-slate-700 p-3.5 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all" 
                   required 
                 />
                 <input 
                   type="email" 
                   placeholder="Email Address" 
-                  className="w-full border border-gray-200 dark:border-slate-700 p-3.5 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all" 
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full border border-gray-200 dark:border-slate-700 p-3.5 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all" 
                   required 
                 />
               </div>
@@ -168,15 +198,18 @@ export default function Contact() {
               <textarea 
                 rows="4" 
                 placeholder="How can we help you?" 
-                className="w-full border border-gray-200 dark:border-slate-700 p-3.5 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all resize-none" 
+                value={formData.message}
+                onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                className="w-full border border-gray-200 dark:border-slate-700 p-3.5 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all resize-none" 
                 required
               />
 
               <button 
                 type="submit" 
-                className="w-full bg-black hover:bg-gray-800 dark:bg-pink-600 dark:hover:bg-pink-700 text-white font-semibold py-4 rounded-xl transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.01]"
+                disabled={sending}
+                className="w-full bg-black hover:bg-gray-800 dark:bg-pink-600 dark:hover:bg-pink-700 text-white font-semibold py-4 rounded-xl transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.01] disabled:opacity-50 text-center"
               >
-                Send Message
+                {sending ? "Sending..." : "Send Message"}
               </button>
             </form>
           </motion.div>

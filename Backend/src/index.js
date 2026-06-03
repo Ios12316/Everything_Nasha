@@ -2,6 +2,7 @@ import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import galleryRoutes from "./routes/galleryRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -45,6 +46,7 @@ app.use("/api/admin", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/gallery", galleryRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.get("/", (req, res) => {
     res.send("Everything Nasha API is running");

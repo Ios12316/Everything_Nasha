@@ -29,6 +29,10 @@ export default function AdminDashboard() {
     const [uploading, setUploading] = useState(false);
     const [galleryMessage, setGalleryMessage] = useState({ text: "", isError: false });
 
+    // Customer Messages states
+    const [messages, setMessages] = useState([]);
+    const [messagesLoading, setMessagesLoading] = useState(true);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/admin/login");
@@ -73,6 +77,24 @@ export default function AdminDashboard() {
             console.error("Error loading gallery:", err);
         } finally {
             setGalleryLoading(false);
+        }
+    };
+
+    const fetchMessages = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await api.get("/messages", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.data?.success) {
+                setMessages(response.data.messages);
+            }
+        } catch (err) {
+            console.error("Error loading messages:", err);
+        } finally {
+            setMessagesLoading(false);
         }
     };
 
@@ -152,9 +174,33 @@ export default function AdminDashboard() {
         );
     };
 
+    const handleDeleteMessage = (id) => {
+        showConfirm(
+            "Delete Message",
+            "Are you sure you want to permanently delete this customer message?",
+            async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    const res = await api.delete(`/messages/${id}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    if (res.data?.success) {
+                        fetchMessages();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert("Error", "Failed to delete customer message.");
+                }
+            }
+        );
+    };
+
     useEffect(() => {
         fetchBookings();
         fetchGallery();
+        fetchMessages();
     }, []);
 
     const updateBookingStatus = async (id, status) => {
@@ -199,7 +245,7 @@ export default function AdminDashboard() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-4 md:p-10">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-6xl mx-auto animate-fadeIn">
                 
                 {/* Header */}
                 <motion.div 
@@ -210,7 +256,7 @@ export default function AdminDashboard() {
                 >
                     <div>
                         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight font-serif">Everything_Nasha</h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">Admin Appointment Management Dashboard</p>
+                        <p className="text-gray-500 dark:text-gray-400 mt-1">Admin Appointment & Message Management</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
@@ -227,7 +273,7 @@ export default function AdminDashboard() {
                     {[
                         { label: "Total Bookings", val: bookings.length, color: "text-gray-900 dark:text-white" },
                         { label: "Pending Bookings", val: bookings.filter(b => b.status === "pending").length, color: "text-amber-600 dark:text-amber-400" },
-                        { label: "Today's Completed Revenue", val: `$${getTodayRevenue()}`, color: "text-emerald-600 dark:text-emerald-450" },
+                        { label: "Customer Messages", val: messages.length, color: "text-purple-600 dark:text-purple-400" },
                         { label: "Total Completed Revenue", val: `$${getTotalRevenue()}`, color: "text-blue-600 dark:text-blue-400" }
                     ].map((stat, i) => (
                         <motion.div 
@@ -250,6 +296,9 @@ export default function AdminDashboard() {
                     transition={{ duration: 0.6, delay: 0.3 }}
                     className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm overflow-hidden"
                 >
+                    <div className="p-5 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white font-serif">📅 Bookings Overview</h2>
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -351,12 +400,66 @@ export default function AdminDashboard() {
                     </div>
                 </motion.div>
 
+                {/* Customer Messages Section */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.35 }}
+                    className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm overflow-hidden mt-10"
+                >
+                    <div className="p-5 border-b border-gray-100 dark:border-slate-700">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white font-serif">📨 Customer Messages</h2>
+                        <p className="text-xs text-gray-500 mt-1">Queries submitted via the Contact Us form.</p>
+                    </div>
+
+                    <div className="p-6">
+                        {messagesLoading ? (
+                            <p className="text-xs text-gray-500 text-center py-6">Loading messages...</p>
+                        ) : messages.length === 0 ? (
+                            <p className="text-xs text-gray-500 text-center py-6">No messages received yet.</p>
+                        ) : (
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {messages.map((msg) => (
+                                    <div 
+                                        key={msg._id} 
+                                        className="relative p-5 rounded-2xl border border-gray-100 dark:border-slate-750 bg-gray-50/50 dark:bg-slate-900/30 flex flex-col justify-between"
+                                    >
+                                        <div>
+                                            <div className="flex justify-between items-start gap-4 mb-2">
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900 dark:text-white">{msg.fullName}</h3>
+                                                    <p className="text-xs text-pink-500 dark:text-pink-400 font-medium break-all">{msg.email}</p>
+                                                </div>
+                                                <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                                                    {new Date(msg.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 leading-relaxed whitespace-pre-wrap">
+                                                "{msg.message}"
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-5 flex justify-end">
+                                            <button
+                                                onClick={() => handleDeleteMessage(msg._id)}
+                                                className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-450 text-xs font-semibold py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
+                                            >
+                                                Delete Message
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+
                 {/* Gallery Manager Section */}
                 <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 }}
-                    className="mt-16 grid lg:grid-cols-5 gap-8 items-start mb-16"
+                    className="mt-10 grid lg:grid-cols-5 gap-8 items-start mb-16"
                 >
                     {/* Left: Upload Form */}
                     <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm">
