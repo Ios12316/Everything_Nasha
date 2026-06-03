@@ -10,18 +10,18 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import dns from "node:dns";
 
-dns.setDefaultResultOrder("ipv4first");
-try {
-    dns.setServers(["8.8.8.8", "1.1.1.1"]);
-} catch (e) {
-    console.warn("Could not set DNS servers:", e.message);
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+    dns.setDefaultResultOrder("ipv4first");
+    try {
+        dns.setServers(["8.8.8.8", "1.1.1.1"]);
+    } catch (e) {
+        console.warn("Could not set DNS servers:", e.message);
+    }
 }
 
 dotenv.config();
 
 const app = express();
-
-connectDB();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -41,6 +41,17 @@ app.use(cors({
     },
     credentials: true
 }));
+
+// Database Connection Middleware (ensures connection and passes CORS headers on database failure)
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error("Database connection middleware error:", err.message);
+        res.status(500).json({ success: false, message: "Database connection failed: " + err.message });
+    }
+});
 
 app.use("/api/admin", authRoutes);
 app.use("/api/bookings", bookingRoutes);
