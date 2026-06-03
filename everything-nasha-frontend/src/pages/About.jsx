@@ -62,7 +62,7 @@ export default function About() {
                 Everything_Nasha was founded on a simple principle: beauty is a form of self-expression, not conformity. We specialize in providing a curated menu of bespoke services including custom tattooing, high-end nail grooming, acrylic enhancements, and luxury lash extensions.
               </p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Our studio operates in Lagos, Nigeria, serving clients who value detailed precision, hygienic procedures, and premium styling. Whether you are coming in for an intricate tattoo piece or custom gel extensions, you are in the hands of trained, dedicated professionals.
+                Our studio operates in Abuja, Nigeria, serving clients who value detailed precision, hygienic procedures, and premium styling. Whether you are coming in for an intricate tattoo piece or custom gel extensions, you are in the hands of trained, dedicated professionals.
               </p>
             </motion.div>
 
@@ -71,7 +71,7 @@ export default function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 p-8 flex flex-col justify-center h-full min-h-[300px]"
+              className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 p-8 flex flex-col justify-center h-full min-h-[300px]"
             >
               <div className="absolute top-4 left-4 text-6xl text-pink-500/10 font-serif">“</div>
               <p className="text-lg md:text-xl italic font-serif text-gray-800 dark:text-gray-200 relative z-10 leading-relaxed mb-6">
