@@ -33,6 +33,10 @@ export default function AdminDashboard() {
     const [messages, setMessages] = useState([]);
     const [messagesLoading, setMessagesLoading] = useState(true);
 
+    // Reviews states
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/admin/login");
@@ -100,6 +104,19 @@ export default function AdminDashboard() {
             console.error("Error loading messages:", err);
         } finally {
             setMessagesLoading(false);
+        }
+    };
+
+    const fetchReviews = async () => {
+        try {
+            const res = await api.get("/reviews");
+            if (res.data?.success) {
+                setReviews(res.data.reviews);
+            }
+        } catch (err) {
+            console.error("Error loading reviews:", err);
+        } finally {
+            setReviewsLoading(false);
         }
     };
 
@@ -202,10 +219,34 @@ export default function AdminDashboard() {
         );
     };
 
+    const handleDeleteReview = (id) => {
+        showConfirm(
+            "Delete Review",
+            "Are you sure you want to permanently delete this customer review?",
+            async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    const res = await api.delete(`/reviews/${id}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    if (res.data?.success) {
+                        fetchReviews();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert("Error", "Failed to delete review.");
+                }
+            }
+        );
+    };
+
     useEffect(() => {
         fetchBookings();
         fetchGallery();
         fetchMessages();
+        fetchReviews();
     }, []);
 
     const updateBookingStatus = async (id, status) => {
@@ -460,6 +501,69 @@ export default function AdminDashboard() {
                                                 className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-450 text-xs font-semibold py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
                                             >
                                                 Delete Message
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+
+                {/* Reviews Management Section */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.38 }}
+                    className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm overflow-hidden mt-10"
+                >
+                    <div className="p-5 border-b border-gray-100 dark:border-slate-700">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white font-serif">⭐ Customer Reviews</h2>
+                        <p className="text-xs text-gray-500 mt-1">Moderate customer reviews shown on the homepage.</p>
+                    </div>
+
+                    <div className="p-6">
+                        {reviewsLoading ? (
+                            <p className="text-xs text-gray-500 text-center py-6">Loading reviews...</p>
+                        ) : reviews.length === 0 ? (
+                            <p className="text-xs text-gray-500 text-center py-6">No reviews received yet.</p>
+                        ) : (
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {reviews.map((rev) => (
+                                    <div 
+                                        key={rev._id} 
+                                        className="relative p-5 rounded-2xl border border-gray-100 dark:border-slate-750 bg-gray-50/50 dark:bg-slate-900/30 flex flex-col justify-between"
+                                    >
+                                        <div>
+                                            <div className="flex justify-between items-start gap-4 mb-2">
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900 dark:text-white">{rev.fullName}</h3>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                                                            {rev.service}
+                                                        </span>
+                                                        <div className="flex text-amber-500 text-xs">
+                                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                                <span key={i}>{i < rev.rating ? "★" : "☆"}</span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                                                    {new Date(rev.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 leading-relaxed">
+                                                "{rev.comment}"
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-5 flex justify-end">
+                                            <button
+                                                onClick={() => handleDeleteReview(rev._id)}
+                                                className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-450 text-xs font-semibold py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
+                                            >
+                                                Delete Review
                                             </button>
                                         </div>
                                     </div>

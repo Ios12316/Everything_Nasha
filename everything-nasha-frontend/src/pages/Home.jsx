@@ -26,6 +26,8 @@ function Home() {
     comment: ""
   });
   const [reviewMsg, setReviewMsg] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editingComment, setEditingComment] = useState("");
 
   const fetchReviews = async () => {
     try {
@@ -61,12 +63,39 @@ function Home() {
       const res = await api.post("/reviews", reviewForm);
       if (res.data?.success) {
         setReviewMsg("Thank you! Review posted.");
+        const editToken = res.data.editToken;
+        const reviewId = res.data.review?._id;
+        if (editToken && reviewId) {
+          localStorage.setItem(`review_edit_token_${reviewId}`, editToken);
+        }
         setReviewForm({ fullName: "", service: "General", rating: 5, comment: "" });
         setTimeout(() => setReviewMsg(""), 4000);
         fetchReviews();
       }
     } catch (err) {
       console.error("Error submitting review:", err);
+    }
+  };
+
+  const handleReviewEditSubmit = async (id) => {
+    try {
+      const editToken = localStorage.getItem(`review_edit_token_${id}`);
+      if (!editToken) {
+        showAlert("Error", "You are not authorized to edit this review.");
+        return;
+      }
+      const res = await api.put(`/reviews/${id}`, {
+        comment: editingComment,
+        editToken
+      });
+      if (res.data?.success) {
+        setEditingReviewId(null);
+        setEditingComment("");
+        fetchReviews();
+      }
+    } catch (err) {
+      console.error("Error editing review:", err);
+      showAlert("Error", err.response?.data?.message || "Failed to update review.");
     }
   };
 
@@ -464,22 +493,63 @@ function Home() {
                         ))}
                       </div>
 
-                      <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed pr-6">
-                        "{rev.comment}"
-                      </p>
+                      {editingReviewId === rev._id ? (
+                        <div className="mt-3 space-y-2">
+                          <textarea
+                            value={editingComment}
+                            onChange={(e) => setEditingComment(e.target.value)}
+                            className="w-full border border-gray-200 dark:border-slate-700 p-2.5 rounded-xl bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm resize-none"
+                            rows="2"
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => setEditingReviewId(null)}
+                              className="text-xs text-gray-500 hover:text-gray-700 font-semibold px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleReviewEditSubmit(rev._id)}
+                              className="text-xs text-white bg-pink-600 hover:bg-pink-700 font-semibold px-3 py-1.5 rounded-lg cursor-pointer"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed pr-6">
+                          "{rev.comment}"
+                        </p>
+                      )}
                     </div>
 
-                    {isAdmin && (
-                      <button
-                        onClick={() => handleDeleteReview(rev._id)}
-                        className="absolute top-4 right-4 text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer"
-                        title="Delete Review"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
+                    <div className="absolute top-4 right-4 flex items-center gap-1">
+                      {localStorage.getItem(`review_edit_token_${rev._id}`) && (
+                        <button
+                          onClick={() => {
+                            setEditingReviewId(rev._id);
+                            setEditingComment(rev.comment);
+                          }}
+                          className="text-pink-600 hover:text-pink-700 transition-colors p-1.5 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-950/20 cursor-pointer"
+                          title="Edit Review"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                      )}
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDeleteReview(rev._id)}
+                          className="text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer"
+                          title="Delete Review"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))
               )}

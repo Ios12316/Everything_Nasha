@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 
 const reviewSchema = new mongoose.Schema({
     fullName: {
@@ -21,6 +22,10 @@ const reviewSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
+    },
+    editToken: {
+        type: String,
+        default: () => crypto.randomUUID()
     },
     createdAt: {
         type: Date,
