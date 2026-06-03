@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 
 function Navbar() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -24,11 +23,11 @@ function Navbar() {
       </h1>
 
       <div className="flex items-center gap-6">
-        <Link to="/" className="hover:text-pink-400 transition-colors">Home</Link>
-        <Link to="/services" className="hover:text-pink-400 transition-colors">Services</Link>
-        <Link to="/gallery" className="hover:text-pink-400 transition-colors font-medium">Gallery</Link>
-        <Link to="/about" className="hover:text-pink-400 transition-colors">About</Link>
-        <Link to="/contact" className="hover:text-pink-400 transition-colors">Contact</Link>
+        <a href="/" className="hover:text-pink-400 transition-colors">Home</a>
+        <a href="/services" className="hover:text-pink-400 transition-colors">Services</a>
+        <a href="/gallery" className="hover:text-pink-400 transition-colors font-medium">Gallery</a>
+        <a href="/about" className="hover:text-pink-400 transition-colors">About</a>
+        <a href="/contact" className="hover:text-pink-400 transition-colors">Contact</a>
         
         <button
           onClick={toggleTheme}
@@ -38,12 +37,12 @@ function Navbar() {
           {theme === "dark" ? "☀️" : "🌙"}
         </button>
 
-        <Link
-          to="/bookings"
+        <a
+          href="/bookings"
           className="bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded transition-colors"
         >
           Book Now
-        </Link>
+        </a>
       </div>
     </nav>
   );
