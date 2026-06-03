@@ -17,6 +17,18 @@ export default function AdminDashboard() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Gallery states
+    const [galleryItems, setGalleryItems] = useState([]);
+    const [galleryLoading, setGalleryLoading] = useState(true);
+    const [uploadData, setUploadData] = useState({
+        type: "image",
+        caption: "",
+        url: ""
+    });
+    const [fileBase64, setFileBase64] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [galleryMessage, setGalleryMessage] = useState({ text: "", isError: false });
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/admin/login");
@@ -51,8 +63,98 @@ export default function AdminDashboard() {
         }
     }
 
+    const fetchGallery = async () => {
+        try {
+            const res = await api.get("/gallery");
+            if (res.data?.success) {
+                setGalleryItems(res.data.items);
+            }
+        } catch (err) {
+            console.error("Error loading gallery:", err);
+        } finally {
+            setGalleryLoading(false);
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const fileType = file.type.startsWith("video/") ? "video" : "image";
+        setUploadData(prev => ({ ...prev, type: fileType }));
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setFileBase64(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleUploadSubmit = async (e) => {
+        e.preventDefault();
+        const targetUrl = fileBase64 || uploadData.url;
+
+        if (!targetUrl) {
+            setGalleryMessage({ text: "Please select a file or paste a URL", isError: true });
+            return;
+        }
+
+        setUploading(true);
+        setGalleryMessage({ text: "", isError: false });
+
+        try {
+            const token = localStorage.getItem("token");
+            const res = await api.post("/gallery", {
+                url: targetUrl,
+                type: uploadData.type,
+                caption: uploadData.caption
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (res.data?.success) {
+                setGalleryMessage({ text: "Media uploaded successfully!", isError: false });
+                setUploadData({ type: "image", caption: "", url: "" });
+                setFileBase64("");
+                const fileInput = document.getElementById("gallery-file-input");
+                if (fileInput) fileInput.value = "";
+                fetchGallery();
+            }
+        } catch (err) {
+            const errMsg = err.response?.data?.message || "Upload failed.";
+            setGalleryMessage({ text: errMsg, isError: true });
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleDeleteGalleryItem = (id) => {
+        showConfirm(
+            "Delete Media",
+            "Are you sure you want to permanently delete this gallery item?",
+            async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    const res = await api.delete(`/gallery/${id}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    if (res.data?.success) {
+                        fetchGallery();
+                    }
+                } catch (err) {
+                    showAlert("Error", "Error deleting item.");
+                }
+            }
+        );
+    };
+
     useEffect(() => {
         fetchBookings();
+        fetchGallery();
     }, []);
 
     const updateBookingStatus = async (id, status) => {
@@ -107,7 +209,7 @@ export default function AdminDashboard() {
                     className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
                 >
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Everything_Nasha</h1>
+                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight font-serif">Everything_Nasha</h1>
                         <p className="text-gray-500 dark:text-gray-400 mt-1">Admin Appointment Management Dashboard</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -246,6 +348,130 @@ export default function AdminDashboard() {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+                </motion.div>
+
+                {/* Gallery Manager Section */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="mt-16 grid lg:grid-cols-5 gap-8 items-start mb-16"
+                >
+                    {/* Left: Upload Form */}
+                    <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 font-serif">💅 Add Gallery Media</h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">Upload recent work images/videos to be visible to customers on the public gallery.</p>
+
+                        <AnimatePresence>
+                            {galleryMessage.text && (
+                                <motion.p
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className={`mb-4 p-3 rounded-xl text-xs font-semibold text-center border ${
+                                        galleryMessage.isError
+                                            ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-300 dark:border-red-900/45"
+                                            : "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-900/45"
+                                    }`}
+                                >
+                                    {galleryMessage.text}
+                                </motion.p>
+                            )}
+                        </AnimatePresence>
+
+                        <form onSubmit={handleUploadSubmit} className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400">Media Type</label>
+                                    <select
+                                        value={uploadData.type}
+                                        onChange={(e) => setUploadData(prev => ({ ...prev, type: e.target.value }))}
+                                        className="w-full border border-gray-200 dark:border-slate-700 p-3 rounded-xl bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500 text-xs"
+                                    >
+                                        <option value="image">Image</option>
+                                        <option value="video">Video</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400">Upload File</label>
+                                    <input
+                                        id="gallery-file-input"
+                                        type="file"
+                                        accept="image/*,video/*"
+                                        onChange={handleFileChange}
+                                        className="w-full border border-gray-200 dark:border-slate-700 p-2.5 rounded-xl bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none cursor-pointer text-xs"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400">Or Paste Media URL</label>
+                                <input
+                                    type="text"
+                                    placeholder="https://example.com/pic.jpg"
+                                    value={uploadData.url}
+                                    onChange={(e) => {
+                                        setUploadData(prev => ({ ...prev, url: e.target.value }));
+                                        setFileBase64("");
+                                    }}
+                                    className="w-full border border-gray-200 dark:border-slate-700 p-3 rounded-xl bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500 text-xs"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400">Caption</label>
+                                <input
+                                    type="text"
+                                    placeholder="Nail sets description..."
+                                    value={uploadData.caption}
+                                    onChange={(e) => setUploadData(prev => ({ ...prev, caption: e.target.value }))}
+                                    className="w-full border border-gray-200 dark:border-slate-700 p-3 rounded-xl bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500 text-xs"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={uploading}
+                                className="w-full bg-black hover:bg-gray-800 dark:bg-pink-600 dark:hover:bg-pink-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 text-xs text-center"
+                            >
+                                {uploading ? "Uploading..." : "Add to Gallery"}
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Right: List of Media items */}
+                    <div className="lg:col-span-3 bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm max-h-[520px] overflow-y-auto">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 font-serif">🖼️ Manage Gallery Media</h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">Current media items showing in the public gallery. Delete unwanted media.</p>
+
+                        {galleryLoading ? (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-6">Loading gallery items...</p>
+                        ) : galleryItems.length === 0 ? (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-6">No gallery items found.</p>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-4">
+                                {galleryItems.map((item) => (
+                                    <div key={item._id} className="relative group rounded-xl overflow-hidden aspect-[4/3] bg-gray-150 border border-gray-200 dark:border-slate-700 flex items-center justify-center">
+                                        {item.type === "video" ? (
+                                            <video src={item.url} className="w-full h-full object-cover" muted playsInline />
+                                        ) : (
+                                            <img src={item.url} alt={item.caption} className="w-full h-full object-cover" />
+                                        )}
+                                        {/* Overlay */}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 z-10">
+                                            <p className="text-[10px] text-white font-medium line-clamp-2">{item.caption || "No Caption"}</p>
+                                            <button
+                                                onClick={() => handleDeleteGalleryItem(item._id)}
+                                                className="bg-rose-600 text-white text-[10px] py-1.5 px-3 rounded-lg font-semibold hover:bg-rose-750 transition-colors w-fit cursor-pointer"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </motion.div>
             </div>
