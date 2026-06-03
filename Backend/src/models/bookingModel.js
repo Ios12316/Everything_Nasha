@@ -8,10 +8,9 @@ const bookingSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: true,
-        unique: true,
     },
-    service: {
-        type: String,
+    services: {
+        type: [String],
         required: true,
         enum: ["Tattoo", "Nails", "Lash Extension"]
     },
@@ -21,6 +20,10 @@ const bookingSchema = new mongoose.Schema({
     },
     time: {
         type: String,
+        required: true,
+    },
+    totalCost: {
+        type: Number,
         required: true,
     },
     status: {
