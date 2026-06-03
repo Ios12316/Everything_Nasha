@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/axios.js";
 import Footer from "../components/Footer.jsx";
+import useModalStore from "../services/modalStore.js";
 
 export default function Gallery() {
+  const { showConfirm, showAlert } = useModalStore();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -97,22 +99,26 @@ export default function Gallery() {
     }
   };
 
-  const handleDeleteItem = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this media item?")) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      const res = await api.delete(`/gallery/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+  const handleDeleteItem = (id) => {
+    showConfirm(
+      "Delete Media",
+      "Are you sure you want to permanently delete this media item from your gallery?",
+      async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await api.delete(`/gallery/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          if (res.data?.success) {
+            fetchGallery();
+          }
+        } catch (err) {
+          showAlert("Error", "Error deleting media item.");
         }
-      });
-      if (res.data?.success) {
-        fetchGallery();
       }
-    } catch (err) {
-      alert("Error deleting item");
-    }
+    );
   };
 
   const filteredItems = items.filter(item => {

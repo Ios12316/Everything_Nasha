@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import Footer from "../components/Footer.jsx";
+import useModalStore from "../services/modalStore.js";
 
 export default function Contact() {
+  const { showAlert } = useModalStore();
   const contactLinks = [
     {
       name: "Shop Address",
@@ -147,7 +149,7 @@ export default function Contact() {
               Fill out the form below and our customer care team will get back to you shortly.
             </p>
 
-            <form onSubmit={(e) => { e.preventDefault(); alert('Message sent successfully!'); e.target.reset(); }} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); showAlert('Success', 'Message sent successfully!'); e.target.reset(); }} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input 
                   type="text" 

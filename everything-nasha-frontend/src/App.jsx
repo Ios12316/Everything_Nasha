@@ -7,6 +7,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Services from "./pages/Services.jsx";
 import Contact from "./pages/Contact.jsx";
 import Gallery from "./pages/Gallery.jsx";
+import GlobalModal from "./components/GlobalModal.jsx";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/gallery" element={<Gallery />} />
       </Routes>
+      <GlobalModal />
     </BrowserRouter>
   )
 }

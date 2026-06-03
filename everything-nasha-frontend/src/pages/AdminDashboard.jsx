@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/axios.js";
+import useModalStore from "../services/modalStore.js";
 
 const statusStyles = {
     pending: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/50",
@@ -12,6 +13,7 @@ const statusStyles = {
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
+    const { showConfirm, showAlert } = useModalStore();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -62,15 +64,20 @@ export default function AdminDashboard() {
         }
     }
 
-    const deleteBooking = async (id) => {
-        if (window.confirm("Are you sure you want to delete this booking?")) {
-            try {
-                await api.delete(`/bookings/${id}`);
-                fetchBookings();
-            } catch (error) {
-                console.log(error);
+    const deleteBooking = (id) => {
+        showConfirm(
+            "Delete Booking",
+            "Are you sure you want to permanently delete this booking?",
+            async () => {
+                try {
+                    await api.delete(`/bookings/${id}`);
+                    fetchBookings();
+                } catch (error) {
+                    console.log(error);
+                    showAlert("Error", "Failed to delete booking.");
+                }
             }
-        }
+        );
     }
 
     if (loading) {

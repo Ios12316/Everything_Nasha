@@ -7,11 +7,13 @@ import HeroImage from "../assets/hero_beauty_studio.png";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import api from "../services/axios.js";
+import useModalStore from "../services/modalStore.js";
 
 const heroImages = [HeroImage, Tattoo, Nails, Lash];
 
 function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { showConfirm, showAlert } = useModalStore();
   
   // Reviews states
   const [reviews, setReviews] = useState([]);
@@ -68,20 +70,25 @@ function Home() {
     }
   };
 
-  const handleDeleteReview = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this review?")) return;
-    try {
-      const token = localStorage.getItem("token");
-      await api.delete(`/reviews/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+  const handleDeleteReview = (id) => {
+    showConfirm(
+      "Delete Review",
+      "Are you sure you want to permanently delete this customer review?",
+      async () => {
+        try {
+          const token = localStorage.getItem("token");
+          await api.delete(`/reviews/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          fetchReviews();
+        } catch (err) {
+          console.error("Error deleting review:", err);
+          showAlert("Error", "Failed to delete review. Please verify admin status.");
         }
-      });
-      fetchReviews();
-    } catch (err) {
-      console.error("Error deleting review:", err);
-      alert("Failed to delete review");
-    }
+      }
+    );
   };
 
   return (
