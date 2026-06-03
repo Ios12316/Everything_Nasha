@@ -58,7 +58,12 @@ export default function AdminDashboard() {
 
     const fetchBookings = async () => {
         try {
-            const response = await api.get("/bookings");
+            const token = localStorage.getItem("token");
+            const response = await api.get("/bookings", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             setBookings(response.data.bookings);
         } catch (error) {
             console.log(error);
@@ -205,7 +210,12 @@ export default function AdminDashboard() {
 
     const updateBookingStatus = async (id, status) => {
         try {
-            await api.put(`/bookings/${id}`, { status });
+            const token = localStorage.getItem("token");
+            await api.put(`/bookings/${id}`, { status }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             fetchBookings();
         } catch (error) {
             console.log(error);
@@ -218,7 +228,12 @@ export default function AdminDashboard() {
             "Are you sure you want to permanently delete this booking?",
             async () => {
                 try {
-                    await api.delete(`/bookings/${id}`);
+                    const token = localStorage.getItem("token");
+                    await api.delete(`/bookings/${id}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
                     fetchBookings();
                 } catch (error) {
                     console.log(error);
