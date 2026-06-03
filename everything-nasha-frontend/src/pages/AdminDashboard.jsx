@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/axios.js";
 
 const statusStyles = {
@@ -75,18 +76,29 @@ export default function AdminDashboard() {
     if (loading) {
         return (
             <div className="min-h-screen flex justify-center items-center bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
-                <div className="flex flex-col items-center gap-2">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center gap-2"
+                >
                     <div className="w-12 h-12 border-4 border-black dark:border-pink-500 border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-gray-500 dark:text-gray-400 font-medium">Loading Dashboard...</p>
-                </div>
+                </motion.div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-6 md:p-10">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 p-4 md:p-10">
             <div className="max-w-6xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                
+                {/* Header */}
+                <motion.div 
+                    initial={{ opacity: 0, y: -15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
+                >
                     <div>
                         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Everything_Nasha</h1>
                         <p className="text-gray-500 dark:text-gray-400 mt-1">Admin Appointment Management Dashboard</p>
@@ -99,38 +111,36 @@ export default function AdminDashboard() {
                             Logout
                         </button>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm">
-                        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total Bookings</div>
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{bookings.length}</div>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm">
-                        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Pending Bookings</div>
-                        <div className="text-2xl font-bold text-amber-600 mt-2">
-                            {bookings.filter(b => b.status === "pending").length}
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm">
-                        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Today's Completed Revenue</div>
-                        <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-                            ${getTodayRevenue()}
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm">
-                        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total Completed Revenue</div>
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-                            ${getTotalRevenue()}
-                        </div>
-                    </div>
+                    {[
+                        { label: "Total Bookings", val: bookings.length, color: "text-gray-900 dark:text-white" },
+                        { label: "Pending Bookings", val: bookings.filter(b => b.status === "pending").length, color: "text-amber-600 dark:text-amber-400" },
+                        { label: "Today's Completed Revenue", val: `$${getTodayRevenue()}`, color: "text-emerald-600 dark:text-emerald-450" },
+                        { label: "Total Completed Revenue", val: `$${getTotalRevenue()}`, color: "text-blue-600 dark:text-blue-400" }
+                    ].map((stat, i) => (
+                        <motion.div 
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: i * 0.1 }}
+                            className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm"
+                        >
+                            <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{stat.label}</div>
+                            <div className={`text-2xl font-bold mt-2 ${stat.color}`}>{stat.val}</div>
+                        </motion.div>
+                    ))}
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                {/* Bookings Table Container */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700/60 shadow-sm overflow-hidden"
+                >
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -218,7 +228,7 @@ export default function AdminDashboard() {
                                                     )}
                                                     <button
                                                         onClick={() => deleteBooking(booking._id)}
-                                                        className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                                                        className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-450 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
                                                     >
                                                         Delete
                                                     </button>
@@ -230,7 +240,7 @@ export default function AdminDashboard() {
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

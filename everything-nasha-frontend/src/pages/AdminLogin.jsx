@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/axios.js";
 import Footer from "../components/Footer.jsx";
 
@@ -33,19 +34,29 @@ export default function AdminLogin() {
     return (
         <>
             <div className="min-h-[85vh] bg-white dark:bg-slate-900 transition-colors duration-300 flex justify-center items-center px-4 py-16">
-                <form
+                <motion.form
                     onSubmit={handleSubmit}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
                     className="w-full max-w-md bg-white dark:bg-slate-800/40 p-8 md:p-10 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-xl"
                 >
                     <h1 className="text-3xl font-extrabold mb-6 text-center text-gray-900 dark:text-white">
                         Admin Login
                     </h1>
 
-                    {message && (
-                        <p className="mb-5 p-3.5 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 text-sm font-semibold rounded-xl border border-red-100 dark:border-red-900/30 text-center transition-all duration-300 animate-fade-in">
-                            {message}
-                        </p>
-                    )}
+                    <AnimatePresence>
+                        {message && (
+                            <motion.p 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="mb-5 p-3.5 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 text-sm font-semibold rounded-xl border border-red-100 dark:border-red-900/30 text-center transition-all duration-300 overflow-hidden"
+                            >
+                                {message}
+                            </motion.p>
+                        )}
+                    </AnimatePresence>
 
                     <div className="space-y-4 mb-6">
                         <div className="space-y-1">
@@ -81,7 +92,7 @@ export default function AdminLogin() {
                     >
                         Login to Dashboard
                     </button>
-                </form>
+                </motion.form>
             </div>
             <Footer />
         </>

@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import Footer from "../components/Footer.jsx";
 
 export default function Contact() {
@@ -77,19 +78,28 @@ export default function Contact() {
       <div className="min-h-[85vh] bg-white dark:bg-slate-900 transition-colors duration-300 py-16 px-6">
         <div className="max-w-5xl mx-auto text-center">
           
-          <div className="mb-12 animate-fade-in">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-12"
+          >
             <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900 dark:text-white">
               Connect With Us
             </h1>
             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
               Have questions, styling suggestions, or want to book? Reach out to us through any of our channels.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {contactLinks.map((item, idx) => (
-              <div 
+              <motion.div 
                 key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
                 className="bg-white dark:bg-slate-800/40 border border-gray-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between items-center text-center"
               >
                 <div className="flex flex-col items-center">
@@ -118,12 +128,18 @@ export default function Contact() {
                 >
                   {item.btnText}
                 </a>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           {/* Quick Message Form Section */}
-          <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800/40 border border-gray-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-xl text-left">
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-2xl mx-auto bg-white dark:bg-slate-800/40 border border-gray-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-xl text-left"
+          >
             <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
               Send a Quick Message
             </h2>
@@ -161,7 +177,7 @@ export default function Contact() {
                 Send Message
               </button>
             </form>
-          </div>
+          </motion.div>
 
         </div>
       </div>
