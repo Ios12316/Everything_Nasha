@@ -16,6 +16,7 @@ function Home() {
   // Reviews states
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [reviewForm, setReviewForm] = useState({
     fullName: "",
     service: "General",
@@ -44,6 +45,11 @@ function Home() {
     
     fetchReviews();
 
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsAdmin(true);
+    }
+
     return () => clearInterval(timer);
   }, []);
 
@@ -59,6 +65,22 @@ function Home() {
       }
     } catch (err) {
       console.error("Error submitting review:", err);
+    }
+  };
+
+  const handleDeleteReview = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await api.delete(`/reviews/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      fetchReviews();
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      alert("Failed to delete review");
     }
   };
 
@@ -419,12 +441,12 @@ function Home() {
                 reviews.map((rev) => (
                   <div 
                     key={rev._id}
-                    className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                    className="relative bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex justify-between items-center mb-2 gap-2">
                         <h4 className="font-bold text-gray-900 dark:text-white text-base">{rev.fullName}</h4>
-                        <span className="bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 text-xs font-semibold px-2 py-0.5 rounded-full">
+                        <span className="bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 text-xs font-semibold px-2 py-0.5 rounded-full mr-6">
                           {rev.service}
                         </span>
                       </div>
@@ -435,10 +457,22 @@ function Home() {
                         ))}
                       </div>
 
-                      <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                      <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed pr-6">
                         "{rev.comment}"
                       </p>
                     </div>
+
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDeleteReview(rev._id)}
+                        className="absolute top-4 right-4 text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer"
+                        title="Delete Review"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 ))
               )}
