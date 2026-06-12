@@ -19,7 +19,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-black text-white px-6 md:px-8 py-4 flex justify-between items-center shadow-md">
+    <nav className="sticky top-0 z-50 bg-black text-white px-4 sm:px-6 md:px-8 py-4 flex justify-between items-center shadow-md">
       <a href="/" className="text-xl md:text-2xl font-bold tracking-tight hover:text-pink-400 transition-colors">
         Everything_Nasha
       </a>

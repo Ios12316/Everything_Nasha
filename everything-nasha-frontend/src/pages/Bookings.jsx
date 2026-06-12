@@ -341,7 +341,7 @@ export default function Bookings() {
 
                                     <div className="space-y-2">
                                         <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Select Services (Multiple choice)</label>
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                             {["Tattoo", "Nail Fixing", "Lash Extensions"].map(option => {
                                                 const isLash = option === "Lash Extensions";
                                                 const isNail = option === "Nail Fixing";
