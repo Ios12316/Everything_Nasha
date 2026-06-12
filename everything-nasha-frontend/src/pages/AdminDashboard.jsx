@@ -330,7 +330,7 @@ export default function AdminDashboard() {
                         { label: "Total Bookings", val: bookings.length, color: "text-gray-900 dark:text-white" },
                         { label: "Pending Bookings", val: bookings.filter(b => b.status === "pending").length, color: "text-amber-600 dark:text-amber-400" },
                         { label: "Customer Messages", val: messages.length, color: "text-purple-600 dark:text-purple-400" },
-                        { label: "Total Completed Revenue", val: `$${getTotalRevenue()}`, color: "text-blue-600 dark:text-blue-400" }
+                        { label: "Total Completed Revenue", val: `₦${getTotalRevenue().toLocaleString()}`, color: "text-blue-600 dark:text-blue-400" }
                     ].map((stat, i) => (
                         <motion.div 
                             key={i}
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
                                             </td>
 
                                             <td className="p-4 md:p-5 font-semibold text-gray-900 dark:text-white">
-                                                ${booking.totalCost !== undefined ? booking.totalCost : "N/A"}
+                                                ₦{booking.totalCost !== undefined ? booking.totalCost.toLocaleString() : "N/A"}
                                             </td>
 
                                             <td className="p-4 md:p-5">

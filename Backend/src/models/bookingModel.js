@@ -12,7 +12,6 @@ const bookingSchema = new mongoose.Schema({
     services: {
         type: [String],
         required: true,
-        enum: ["Tattoo", "Nails", "Lash Extension"]
     },
     date: {
         type: String,

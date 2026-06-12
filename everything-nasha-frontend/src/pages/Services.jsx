@@ -8,20 +8,55 @@ const servicesList = [
   {
     name: "Tattoos",
     image: Tattoo,
-    price: "From $100",
+    price: "Custom Pricing",
     desc: "Premium, custom tattoo designs crafted with expert care, complete sanitation, and deep artistic precision.",
   },
   {
     name: "Nail Fixing",
     image: Nails,
-    price: "From $40",
+    price: "From ₦2,000",
     desc: "Luxury nails fixed and styled to perfection. Includes classic designs, custom acrylics, and gel extensions.",
+    subServices: {
+      "Nail Services": [
+        { name: "Stick On Gel Polish", price: "₦9,000" },
+        { name: "Gel Polish", price: "₦3,000" },
+        { name: "Toe Acrylic", price: "₦6,000" },
+        { name: "Plain Acrylic Set", price: "₦11,000" },
+        { name: "Short Acrylic", price: "₦10,000" },
+        { name: "Medium Acrylic", price: "₦15,000" },
+        { name: "Long Acrylic", price: "₦20,000" },
+        { name: "Refill and Gel Polish", price: "₦8,000" },
+        { name: "Airbrush Set (Long)", price: "₦25,000" },
+        { name: "Airbrush Set (Short)", price: "₦15,000" },
+        { name: "Soak Off", price: "₦2,000" }
+      ],
+      "Additional Services": [
+        { name: "Basic Pedicure (with Gel Polish)", price: "₦10,000" },
+        { name: "Basic Manicure (with Gel Polish)", price: "₦7,000" }
+      ]
+    }
   },
   {
     name: "Lash Extensions",
     image: Lash,
-    price: "From $60",
+    price: "From ₦5,000",
     desc: "Stunning lash extensions that range from classic natural look to premium hybrid volume for flawless eyes.",
+    subServices: {
+      "Normal Set": [
+        { name: "Classic", price: "₦15,000" },
+        { name: "Hybrid", price: "₦20,000" },
+        { name: "Volume", price: "₦28,000" },
+        { name: "Full Volume", price: "₦30,000" },
+        { name: "Mega Volume", price: "₦35,000" },
+        { name: "Under Eyes", price: "₦5,000 / ₦10,000" },
+        { name: "Lash Removal", price: "₦5,000" },
+        { name: "Wispy", price: "₦5,000" }
+      ],
+      "Custom Set": [
+        { name: "Volume/Under Eyes", price: "₦35,000 - ₦40,000" },
+        { name: "Mega Volume/Under Eyes", price: "₦65,000" }
+      ]
+    }
   }
 ];
 
@@ -68,9 +103,27 @@ function Services() {
                         {service.price}
                       </span>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm mb-4">
                       {service.desc}
                     </p>
+                    
+                    {service.subServices && (
+                      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/60 space-y-3">
+                        {Object.entries(service.subServices).map(([category, items]) => (
+                          <div key={category}>
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400 mb-1.5">{category}</h4>
+                            <div className="grid grid-cols-1 gap-1">
+                              {items.map(item => (
+                                <div key={item.name} className="flex justify-between text-xs text-gray-650 dark:text-gray-400">
+                                  <span className="font-medium">{item.name}</span>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-200">{item.price}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="p-6 pt-0">
