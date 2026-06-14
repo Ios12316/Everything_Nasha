@@ -34,7 +34,7 @@ export default function Contact() {
     {
       name: "Shop Address",
       value: "Army Estate Modern Market, FCDA, Kubwa, Abuja Nigeria",
-      subtext: "Open daily: 9:00 AM - 7:00 PM",
+      subtext: "Open daily: 9:00 AM - 6:00 PM",
       link: "https://maps.google.com/?q=Army+Estate+Modern+Market,+FCDA,+Kubwa,+Abuja,+Nigeria",
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

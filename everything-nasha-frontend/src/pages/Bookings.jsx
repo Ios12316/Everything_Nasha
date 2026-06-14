@@ -645,9 +645,9 @@ export default function Bookings() {
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
+                                            <div className="space-y-1">
                                             <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Time</label>
-                                            <input 
+                                            <input
                                                 type="time"
                                                 name="time"
                                                 value={formData.time}
