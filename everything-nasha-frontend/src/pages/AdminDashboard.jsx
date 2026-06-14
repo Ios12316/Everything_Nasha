@@ -11,6 +11,44 @@ const statusStyles = {
     cancelled: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900/50"
 };
 
+const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedBase64 = canvas.toDataURL("image/jpeg", quality);
+                resolve(compressedBase64);
+            };
+            img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
+    });
+};
+
 export default function AdminDashboard() {
     const navigate = useNavigate();
     const { showConfirm, showAlert } = useModalStore();
@@ -120,18 +158,52 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         const fileType = file.type.startsWith("video/") ? "video" : "image";
         setUploadData(prev => ({ ...prev, type: fileType }));
+        setGalleryMessage({ text: "", isError: false });
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setFileBase64(reader.result);
-        };
-        reader.readAsDataURL(file);
+        if (fileType === "image") {
+            try {
+                setUploading(true);
+                setGalleryMessage({ text: "Compressing image for fast upload...", isError: false });
+                const compressedBase64 = await compressImage(file);
+                setFileBase64(compressedBase64);
+                setGalleryMessage({ text: "Image compressed successfully and ready to upload.", isError: false });
+            } catch (err) {
+                console.error("Image compression failed, using original file", err);
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setFileBase64(reader.result);
+                    setGalleryMessage({ text: "Ready to upload original image.", isError: false });
+                };
+                reader.readAsDataURL(file);
+            } finally {
+                setUploading(false);
+            }
+        } else {
+            // Video: Check size limit (MongoDB document limit is 16MB, base64 adds ~33% size, so max file size ~11MB)
+            if (file.size > 11 * 1024 * 1024) {
+                setGalleryMessage({ 
+                    text: "Video file is too large (Max 11MB). Please compress/trim your video before uploading.", 
+                    isError: true 
+                });
+                const fileInput = document.getElementById("gallery-file-input");
+                if (fileInput) fileInput.value = "";
+                setFileBase64("");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFileBase64(reader.result);
+                setGalleryMessage({ text: "Video loaded successfully. Ready to upload.", isError: false });
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleUploadSubmit = async (e) => {
@@ -519,7 +591,7 @@ export default function AdminDashboard() {
                 >
                     <div className="p-5 border-b border-gray-100 dark:border-slate-700">
                         <h2 className="text-lg font-bold text-gray-900 dark:text-white font-serif">⭐ Customer Reviews</h2>
-                        <p className="text-xs text-gray-500 mt-1">Moderate customer reviews shown on the homepage.</p>
+                        <p className="text-xs text-gray-500 mt-1">Moderate customer reviews shown on the reviews page.</p>
                     </div>
 
                     <div className="p-6">

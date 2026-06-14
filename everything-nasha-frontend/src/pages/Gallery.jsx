@@ -47,7 +47,7 @@ export default function Gallery() {
               Studio Gallery
             </h1>
             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              Explore our latest masterpieces of nail designs, custom tattoos, and lash mappings.
+              Explore our latest masterpieces of nail designs, custom tattoos, lash mappings and semi permanent brows.
             </p>
           </motion.div>
 

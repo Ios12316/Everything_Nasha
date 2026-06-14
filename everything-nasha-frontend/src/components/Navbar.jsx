@@ -29,6 +29,7 @@ function Navbar() {
         <a href="/" className="hover:text-pink-400 transition-colors">Home</a>
         <a href="/services" className="hover:text-pink-400 transition-colors">Services</a>
         <a href="/gallery" className="hover:text-pink-400 transition-colors">Gallery</a>
+        <a href="/reviews" className="hover:text-pink-400 transition-colors">Reviews</a>
         <a href="/about" className="hover:text-pink-400 transition-colors">About</a>
         <a href="/contact" className="hover:text-pink-400 transition-colors">Contact</a>
         
@@ -88,6 +89,7 @@ function Navbar() {
             <a href="/" className="hover:text-pink-400 transition-colors text-lg py-1 w-full text-center">Home</a>
             <a href="/services" className="hover:text-pink-400 transition-colors text-lg py-1 w-full text-center">Services</a>
             <a href="/gallery" className="hover:text-pink-400 transition-colors text-lg py-1 w-full text-center font-medium">Gallery</a>
+            <a href="/reviews" className="hover:text-pink-400 transition-colors text-lg py-1 w-full text-center">Reviews</a>
             <a href="/about" className="hover:text-pink-400 transition-colors text-lg py-1 w-full text-center">About</a>
             <a href="/contact" className="hover:text-pink-400 transition-colors text-lg py-1 w-full text-center">Contact</a>
             

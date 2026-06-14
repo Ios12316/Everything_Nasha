@@ -29,7 +29,10 @@ const serviceCosts = {
     "Lash.Wispy": 5000,
     "Lash.Custom Volume/Under Eyes (₦35,000)": 35000,
     "Lash.Custom Volume/Under Eyes (₦40,000)": 40000,
-    "Lash.Custom Mega Volume/Under Eyes": 65000
+    "Lash.Custom Mega Volume/Under Eyes": 65000,
+    "Brows.Micro-blading": 25000,
+    "Brows.Micro-shading": 35000,
+    "Brows.Combo-brows": 45000
 };
 
 const getTodayDateString = () => {
@@ -59,6 +62,13 @@ export default function Bookings() {
     const [isConfirming, setIsConfirming] = useState(false);
     const [showLashOptions, setShowLashOptions] = useState(false);
     const [showNailOptions, setShowNailOptions] = useState(false);
+    const [showBrowsOptions, setShowBrowsOptions] = useState(false);
+
+    const browsSubServices = [
+        { key: "Brows.Micro-blading", label: "Micro-blading", price: 25000 },
+        { key: "Brows.Micro-shading", label: "Micro-shading", price: 35000 },
+        { key: "Brows.Combo-brows", label: "Combo-brows", price: 45000 }
+    ];
 
     const nailSubServices = {
         nailServices: [
@@ -341,10 +351,11 @@ export default function Bookings() {
 
                                     <div className="space-y-2">
                                         <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Select Services (Multiple choice)</label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            {["Tattoo", "Nail Fixing", "Lash Extensions"].map(option => {
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                            {["Tattoo", "Nail Fixing", "Lash Extensions", "Semi-Permanent Brows"].map(option => {
                                                 const isLash = option === "Lash Extensions";
                                                 const isNail = option === "Nail Fixing";
+                                                const isBrows = option === "Semi-Permanent Brows";
                                                 
                                                 const isLashSelected = formData.services.some(s => s.startsWith("Lash."));
                                                 const selectedLashCount = formData.services.filter(s => s.startsWith("Lash.")).length;
@@ -352,17 +363,24 @@ export default function Bookings() {
                                                 const isNailSelected = formData.services.some(s => s.startsWith("Nails."));
                                                 const selectedNailCount = formData.services.filter(s => s.startsWith("Nails.")).length;
 
+                                                const isBrowsSelected = formData.services.some(s => s.startsWith("Brows."));
+                                                const selectedBrowsCount = formData.services.filter(s => s.startsWith("Brows.")).length;
+
                                                 const isSelected = isLash 
                                                     ? isLashSelected 
                                                     : isNail 
                                                     ? isNailSelected 
+                                                    : isBrows
+                                                    ? isBrowsSelected
                                                     : formData.services.includes(option);
                                                 
                                                 const displayPrice = option === "Tattoo" 
                                                     ? "Custom Pricing" 
                                                     : isNail 
                                                     ? "₦2,000 - ₦25,000" 
-                                                    : "₦5,000 - ₦65,000";
+                                                    : isLash
+                                                    ? "₦5,000 - ₦65,000"
+                                                    : "₦25,000 - ₦45,000";
 
                                                 return (
                                                     <motion.button
@@ -374,6 +392,8 @@ export default function Bookings() {
                                                                 setShowLashOptions(!showLashOptions);
                                                             } else if (isNail) {
                                                                 setShowNailOptions(!showNailOptions);
+                                                            } else if (isBrows) {
+                                                                setShowBrowsOptions(!showBrowsOptions);
                                                             } else {
                                                                 handleServiceToggle(option);
                                                             }
@@ -396,8 +416,13 @@ export default function Bookings() {
                                                                     {selectedNailCount}
                                                                 </span>
                                                             )}
+                                                            {isBrows && selectedBrowsCount > 0 && (
+                                                                <span className="bg-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold ml-1">
+                                                                    {selectedBrowsCount}
+                                                                </span>
+                                                            )}
                                                         </span>
-                                                        <span className={`text-xs font-medium ${isSelected ? "text-gray-350 dark:text-pink-200" : "text-gray-500 dark:text-gray-400"}`}>
+                                                        <span className={`text-xs font-medium ${isSelected ? "text-gray-350 dark:text-pink-200" : "text-gray-550 dark:text-gray-400"}`}>
                                                             {displayPrice}
                                                         </span>
                                                     </motion.button>
@@ -558,6 +583,48 @@ export default function Bookings() {
                                                                 })}
                                                             </div>
                                                         </div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                        <AnimatePresence>
+                                            {(showBrowsOptions || formData.services.some(s => s.startsWith("Brows."))) && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: "auto" }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="overflow-hidden border border-pink-100/50 dark:border-slate-700/60 rounded-2xl bg-pink-50/10 dark:bg-slate-800/20 p-5 mt-4 space-y-5"
+                                                >
+                                                    <div className="flex justify-between items-center pb-2 border-b border-pink-100/30 dark:border-slate-700/60">
+                                                        <span className="text-sm font-bold text-gray-800 dark:text-gray-200">Brows Options</span>
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">Select one or more (dot selection)</span>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        {browsSubServices.map(service => {
+                                                            const isSubSelected = formData.services.includes(service.key);
+                                                            return (
+                                                                <button
+                                                                    key={service.key}
+                                                                    type="button"
+                                                                    onClick={() => handleSubServiceToggle(service.key)}
+                                                                    className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-150 dark:border-slate-800/80 bg-white dark:bg-slate-900 text-left transition-all hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                                                            isSubSelected 
+                                                                            ? "border-pink-600 dark:border-pink-500 bg-pink-600 dark:bg-pink-500" 
+                                                                            : "border-gray-300 dark:border-slate-650"
+                                                                        }`}>
+                                                                            {isSubSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                                                        </div>
+                                                                        <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{service.label}</span>
+                                                                    </div>
+                                                                    <span className="text-xs font-bold text-gray-900 dark:text-white">₦{service.price.toLocaleString()}</span>
+                                                                </button>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </motion.div>
                                             )}

@@ -2,19 +2,20 @@ import { motion } from "framer-motion";
 import Tattoo from "../assets/Tattoos.png";
 import Nails from "../assets/Nails.png";
 import Lash from "../assets/Lash1.png";
+import Brows from "../assets/Brows.png";
 import Footer from "../components/Footer.jsx";
 
 const servicesList = [
   {
     name: "Tattoos",
     image: Tattoo,
-    price: "Custom Pricing",
+    price: "",
     desc: "Premium, custom tattoo designs crafted with expert care, complete sanitation, and deep artistic precision.",
   },
   {
-    name: "Nail Fixing",
+    name: "Nail Installations",
     image: Nails,
-    price: "From ₦2,000",
+    price: "",
     desc: "Luxury nails fixed and styled to perfection. Includes classic designs, custom acrylics, and gel extensions.",
     subServices: {
       "Nail Services": [
@@ -39,7 +40,7 @@ const servicesList = [
   {
     name: "Lash Extensions",
     image: Lash,
-    price: "From ₦5,000",
+    price: "",
     desc: "Stunning lash extensions that range from classic natural look to premium hybrid volume for flawless eyes.",
     subServices: {
       "Normal Set": [
@@ -55,6 +56,19 @@ const servicesList = [
       "Custom Set": [
         { name: "Volume/Under Eyes", price: "₦35,000 - ₦40,000" },
         { name: "Mega Volume/Under Eyes", price: "₦65,000" }
+      ]
+    }
+  },
+  {
+    name: "Semi-Permanent Brows",
+    image: Brows,
+    price: "",
+    desc: "Define your eyes and enhance your eyebrows with professional semi-permanent blading and shading.",
+    subServices: {
+      "Brows & Shading": [
+        { name: "Micro-blading", price: "₦25,000" },
+        { name: "Micro-shading", price: "₦35,000" },
+        { name: "Combo-brows", price: "₦45,000" }
       ]
     }
   }
@@ -80,7 +94,7 @@ function Services() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
             {servicesList.map((service, idx) => (
               <motion.div
                 key={service.name}

@@ -8,6 +8,7 @@ import Services from "./pages/Services.jsx";
 import Contact from "./pages/Contact.jsx";
 import Gallery from "./pages/Gallery.jsx";
 import About from "./pages/About.jsx";
+import Reviews from "./pages/Reviews.jsx";
 import GlobalModal from "./components/GlobalModal.jsx";
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/reviews" element={<Reviews />} />
         <Route path="/about" element={<About />} />
       </Routes>
       <GlobalModal />

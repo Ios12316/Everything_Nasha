@@ -7,7 +7,7 @@ function Footer() {
         </h2>
 
         <p>
-          Tattoos • Nail Fixing • Lash Extensions
+          Tattoos • Nail Fixing • Lash Extensions • Semi-Permanent Brows
         </p>
 
         <p className="mt-4 text-gray-400">
